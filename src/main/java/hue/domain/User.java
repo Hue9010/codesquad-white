@@ -1,12 +1,35 @@
 package hue.domain;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+
+@Entity
 public class User {
-	String userId;
-	String password;
-	String name;
-	String email;
+
+	@Id
+	@GeneratedValue
+	private Long id;
 	
-	User(){
+	@Column(nullable=false, length=20)
+	private String userId;
+	
+	@Column(nullable=false, length=20)
+	private String password;
+	
+	@Column(nullable=false, length=20)
+	private String name;
+	
+	@Column(nullable=true, length=20)
+	private String email;
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
 	}
 
 	public String getUserId() {
@@ -41,4 +64,13 @@ public class User {
 		this.email = email;
 	}
 	
+	public boolean update(User user) {
+		if(password.equals(user.getPassword())) {
+			name = user.getName();
+			email = user.getEmail();
+			return true;
+		}
+		return false;
+	}
+
 }

@@ -1,10 +1,32 @@
 package hue.domain;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+
+@Entity
 public class Question {
-	String writer;
-	String title;
-	String contents;
 	
+	@Id
+	@GeneratedValue
+	private Long id;
+	
+	@Column(nullable=false, length=20)
+	private String writer;
+	
+	@Column(nullable=false, length=20)
+	private String title;
+
+	@Column(nullable=false, length=20)
+	private String contents;
+	
+	public Long getId() {
+		return id;
+	}
+	public void setId(Long id) {
+		this.id = id;
+	}
 	public String getWriter() {
 		return writer;
 	}
