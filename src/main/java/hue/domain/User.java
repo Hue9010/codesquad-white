@@ -64,13 +64,21 @@ public class User {
 		this.email = email;
 	}
 	
+	public boolean matchPassword(String password) {
+		return this.password.equals(password);
+	}
+	
 	public boolean update(User user) {
-		if(password.equals(user.getPassword())) {
+		if(matchPassword(user.getPassword())) {
 			name = user.getName();
 			email = user.getEmail();
 			return true;
 		}
 		return false;
+	}
+
+	public boolean matchId(long id) {
+		return this.id.equals(id);
 	}
 
 }
