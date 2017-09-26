@@ -20,7 +20,7 @@ import hue.domain.User;
 public class QuestionController {
 	
 	@Autowired
-	QuestionRepository questionRepository;
+	private QuestionRepository questionRepository;
 	
 	@PostMapping("/questions/remove/{qId}")
 	public String removeQuestion(@PathVariable long qId, HttpSession session) {
@@ -31,17 +31,18 @@ public class QuestionController {
 		}
 		User loginUser = (User)tempUser;
 		
-		if(tempQuestion.getWriter() != loginUser.getName()) {
+//		if(!tempQuestion.getWriter().equals(loginUser)) {
+//			return "redirect:/";
+//		}
+		if(!tempQuestion.isSameUser(loginUser)) {
 			return "redirect:/";
 		}
-		System.out.println("up");
 		questionRepository.delete(qId);
-		System.out.println("down");
 		return "redirect:/";
 	}
 	
 	@PostMapping("/question/modify/{qId}")
-	public String modifyQuestion(@PathVariable long qId, Model model, HttpSession session, Question question) {
+	public String modifyQuestion(@PathVariable long qId, Model model, HttpSession session, String title, String contents) {
 		Question tempQuestion = questionRepository.findOne(qId);
 		Object tempUser = session.getAttribute("loginedUser");
 		if(tempUser == null) {
@@ -49,36 +50,42 @@ public class QuestionController {
 		}
 		User loginUser = (User)tempUser;
 		
-		if(tempQuestion.getWriter() != loginUser.getName()) {
+		if(!tempQuestion.isSameUser(loginUser)) {
 			return "redirect:/";
 		}
 		
-		tempQuestion.update(question);
+		tempQuestion.update(title, contents);
 		questionRepository.save(tempQuestion);
-		model.addAttribute("question", question);
 		
 		return "redirect:/questions/" + qId ;
 	}
 	
 	@GetMapping("/questions/{qId}/modify")
 	public String modifyForm(@PathVariable long qId, Model model, HttpSession session) {
-		Question question = questionRepository.findOne(qId);
+		Question tempQuestion = questionRepository.findOne(qId);
 		Object tempUser = session.getAttribute("loginedUser");
 		if(tempUser == null) {
 			return "redirect:/";
 		}
 		User loginUser = (User)tempUser;
 		
-		if(question.getWriter() != loginUser.getName()) {
+		if(!tempQuestion.getWriter().equals(loginUser)) {
 			return "redirect:/";
 		}
 		
-		model.addAttribute("question", question);
+		model.addAttribute("question", tempQuestion);
 		return "qna/modify";
 	}
 	
-	@PostMapping("/questions/add/{uid}")
-	public String addQuestion(Question question, @PathVariable long uid) {
+	@PostMapping("/questions/add")
+	public String addQuestion(String title,String contents, HttpSession session) {
+		Object tempUser = session.getAttribute("loginedUser");
+		if(tempUser == null) {
+			return "redirect:/";
+		}
+		User loginUser = (User)tempUser;
+		
+		Question question = new Question(loginUser, title, contents); 
 		questionRepository.save(question);
 		return "redirect:/";
 	}
@@ -103,8 +110,8 @@ public class QuestionController {
 	@GetMapping("/questions/{id}")
 	public String showQuestion(Model model, @PathVariable long id) {
 		model.addAttribute("question", questionRepository.findOne(id));
+		
 		return "qna/show";
 	}
 	
-
 }
